@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.beyonnex'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// --release rather than a Java toolchain: it compiles against the Java 17 API using whatever
+// JDK 17+ is already installed, instead of making Gradle download a second JDK.
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:all'
+}
+
+application {
+    mainClass = 'com.beyonnex.anagram.cli.Main'
+    // The program reads and writes text, so pin the encoding instead of inheriting the platform's.
+    applicationDefaultJvmArgs = ['-Dfile.encoding=UTF-8']
+}
+
+// 'gradle run' wires up a real terminal; without this, stdin is not forwarded to the program.
+run {
+    standardInput = System.in
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': application.mainClass
+    }
+}
