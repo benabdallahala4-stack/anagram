@@ -158,6 +158,7 @@ public final class AnagramCli {
         out.println("""
                 Anagram tool.
                   check <first> | <second>   are the two texts anagrams? (feature 1)
+                  check                      the same, prompting for each text on its own line
                   find <text>                which earlier texts are anagrams of it? (feature 2)
                 Type 'help' for all commands, 'quit' to leave.""");
     }
