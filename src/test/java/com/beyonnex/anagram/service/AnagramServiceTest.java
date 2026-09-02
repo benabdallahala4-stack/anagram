@@ -68,7 +68,7 @@ class AnagramServiceTest {
     }
 
     @Test
-    @DisplayName("feature #2 does not record its query: history comes from feature #1 alone")
+    @DisplayName("find does not add to the history")
     void queryingDoesNotRecord() {
         service.areAnagrams("listen", "silent");
 

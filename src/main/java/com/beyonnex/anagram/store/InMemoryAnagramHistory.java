@@ -12,26 +12,12 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * In-memory history holding two views of the same texts.
+ * Two maps over the same texts: {@code byLetters} dedupes and keeps insertion order,
+ * {@code buckets} groups texts by signature so finding anagrams is one hash lookup rather than
+ * a scan of everything entered.
  *
- * <ul>
- *   <li>{@code byLetters} keyed on the normalised letter sequence: it deduplicates (re-entering
- *       {@code "listen"}, or entering {@code "LISTEN"}, does not create a second entry) and, being a
- *       {@link LinkedHashMap}, remembers the order texts first arrived.</li>
- *   <li>{@code buckets} keyed on {@link AnagramSignature}: every text built from a given set of
- *       letters, in arrival order.</li>
- * </ul>
- *
- * <p>The second view is the point. Candidate anagrams of a query are exactly one bucket, so a lookup
- * costs O(m log m) on the length of the query alone and does not slow down as the history grows;
- * comparing the query against every stored text would instead cost O(n·m). Insertion-ordered
- * structures throughout mean results are deterministic rather than dependent on hash order.
- *
- * <p>The first spelling of a word wins and is what gets echoed back to the user.
- *
- * <p>Thread-safe via a single read/write lock, so the read-heavy lookup path stays concurrent. A
- * single-run CLI never contends, but a store is exactly the component that later ends up behind a
- * request handler.
+ * <p>A read/write lock keeps the two maps consistent with each other. Not needed for a
+ * single-user CLI, but a store is the part that ends up shared if this grows.
  */
 public final class InMemoryAnagramHistory implements AnagramHistory {
 
@@ -63,9 +49,7 @@ public final class InMemoryAnagramHistory implements AnagramHistory {
             }
             List<NormalizedText> anagrams = new ArrayList<>(family.size());
             for (NormalizedText candidate : family) {
-                // Sharing a bucket already proves "same letters", so this only has to enforce
-                // "a different word or phrase" -- which is what keeps the query out of its own
-                // results, whether or not it was ever entered itself.
+                // Same bucket means same letters; only the query's own word is left out.
                 if (!query.isSameWordAs(candidate)) {
                     anagrams.add(candidate);
                 }

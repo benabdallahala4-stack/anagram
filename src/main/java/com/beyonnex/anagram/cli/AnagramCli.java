@@ -10,15 +10,11 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * The interactive loop, written against a {@link BufferedReader}/{@link PrintWriter} pair rather
- * than {@code System.in}/{@code System.out} so that it can be driven end to end from a test.
+ * The command loop. Takes a reader and a writer instead of System.in/out so a test can drive a
+ * whole session.
  *
- * <p>Deliberately thin: it parses commands, delegates to {@link AnagramService}, and formats the
- * answer. No rule about anagrams lives here.
- *
- * <p>Texts may contain spaces ("New York Times"), so a bare command word prompts for each text on
- * its own line, which is unambiguous for any input. A {@code |}-separated one-liner is also accepted
- * because it makes the program easy to script and to pipe input into.
+ * <p>Texts can contain spaces ("New York Times"), so a bare {@code check} prompts for each text
+ * on its own line. {@code check a | b} is a one-line shortcut, handy when piping input in.
  */
 public final class AnagramCli {
 
@@ -34,7 +30,6 @@ public final class AnagramCli {
         this.out = Objects.requireNonNull(out, "out");
     }
 
-    /** Runs until the user quits or input ends. */
     public void run() {
         printBanner();
 
@@ -42,7 +37,7 @@ public final class AnagramCli {
         while (running) {
             String line = prompt("> ");
             if (line == null) {
-                // End of input: Ctrl-D, or a pipe running dry.
+                // End of input (Ctrl-D, or the pipe closed).
                 out.println();
                 break;
             }
@@ -68,14 +63,12 @@ public final class AnagramCli {
                 default -> out.println(
                         "Unknown command: '" + command + "'. Type 'help' to see the commands.");
             }
-            // One flush per command handled, rather than one at the end of every branch. The only
-            // other place output has to be pushed is prompt(), which does not end with a newline.
             out.flush();
         }
         out.flush();
     }
 
-    /** Feature #1. Accepts {@code check A | B}, or prompts for each text when given no argument. */
+    /** Feature 1: {@code check a | b}, or just {@code check} to be prompted for each text. */
     private void check(String argument) {
         String left;
         String right;
@@ -109,7 +102,7 @@ public final class AnagramCli {
         }
     }
 
-    /** Feature #2. Accepts {@code find A}, or prompts for the text when given no argument. */
+    /** Feature 2: {@code find text}, or just {@code find} to be prompted. */
     private void find(String argument) {
         String text = argument;
         if (text.isEmpty()) {
@@ -163,10 +156,10 @@ public final class AnagramCli {
                 Asking 'find' does not itself record anything.""");
     }
 
-    /** Writes a prompt and reads one line. @return the line, or null when input has ended */
+    /** @return the next line, or null at end of input */
     private String prompt(String label) {
         out.print(label);
-        out.flush();
+        out.flush(); // no newline in the label, so println's autoflush would not help here
         try {
             return in.readLine();
         } catch (IOException e) {

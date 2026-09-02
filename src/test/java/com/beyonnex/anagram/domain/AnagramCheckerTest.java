@@ -21,11 +21,6 @@ class AnagramCheckerTest {
 
     private final AnagramChecker checker = new AnagramChecker();
 
-    /**
-     * Exactly what {@code AnagramService} does for feature #1 minus the recording: normalise both
-     * texts, then apply the rule. Asserting through the same path production takes means these cases
-     * cannot pass against a shortcut that only the tests use.
-     */
     private boolean areAnagrams(String left, String right) {
         return checker.normalize(left).isAnagramOf(checker.normalize(right));
     }
@@ -57,7 +52,7 @@ class AnagramCheckerTest {
     }
 
     @Test
-    @DisplayName("a text is never an anagram of itself: Wikipedia requires a DIFFERENT word")
+    @DisplayName("a text is not an anagram of itself")
     void aTextIsNotAnAnagramOfItself() {
         assertFalse(areAnagrams("listen", "listen"));
     }
@@ -97,7 +92,7 @@ class AnagramCheckerTest {
     }
 
     @Test
-    @DisplayName("letters outside the Basic Multilingual Plane count as one letter, not two halves")
+    @DisplayName("letters outside the BMP count as one letter")
     void handlesSupplementaryPlaneLetters() {
         // Deseret capital long I and long E: each is one letter that Java stores as a surrogate pair.
         String first = new String(new int[] {0x10400, 0x10401}, 0, 2);

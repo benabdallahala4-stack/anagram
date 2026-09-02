@@ -2,62 +2,46 @@
 
 [![build](https://github.com/benabdallahala4-stack/anagram/actions/workflows/build.yml/badge.svg)](https://github.com/benabdallahala4-stack/anagram/actions/workflows/build.yml)
 
-An interactive command-line program with two features:
+Small interactive CLI with two features:
 
-1. **Check** whether two texts are anagrams of each other.
-2. **Find** every previously entered text that is an anagram of a given text.
+1. **check** – are two texts anagrams of each other?
+2. **find** – which previously entered texts are anagrams of a given text?
 
-Java 17, Gradle, no runtime dependencies. History is kept in memory for the duration of one run.
+Java 17, Gradle, no runtime dependencies. History is kept in memory for one run.
 
 ## Running it
 
-From source, with any JDK 17 or newer:
-
 ```bash
 ./gradlew run          # interactive
-./gradlew test         # 47 tests
+./gradlew test
 ```
 
-Or build a jar and run that:
+Or with a jar (also attached to the [latest release](https://github.com/benabdallahala4-stack/anagram/releases/latest)):
 
 ```bash
 ./gradlew jar
 java -jar build/libs/anagram-1.0.0.jar
 ```
 
-A prebuilt jar is attached to the [latest release](https://github.com/benabdallahala4-stack/anagram/releases/latest),
-so it can be run without building anything:
-
-```bash
-java -jar anagram-1.0.0.jar
-```
-
-### With Docker
-
-For a machine with no JDK on it. The image is built from source in a throwaway stage, so only a JRE
-and the jar are shipped:
+Or with Docker, if there is no JDK around:
 
 ```bash
 docker build -t anagram .
 docker run --rm -it anagram
 ```
 
-`-i` matters: the program reads stdin, so without it there is nothing to read and it exits at once.
-
 ### Commands
 
-| Command | Does |
+| Command | |
 | --- | --- |
-| `check` | Feature #1, prompting for each text on its own line |
-| `check <first> \| <second>` | Feature #1 on one line |
-| `find <text>` | Feature #2 |
-| `history` | Every text entered so far |
-| `help` / `quit` | |
+| `check` | feature 1, prompts for each text on its own line |
+| `check <first> \| <second>` | same thing on one line |
+| `find <text>` | feature 2 |
+| `history` | everything entered so far |
+| `help`, `quit` | |
 
-Texts may contain spaces, so the prompted form of `check` is the unambiguous one; the `|` form
-exists to make the program easy to script and pipe into.
-
-### A session
+Texts can contain spaces, so the prompted form of `check` is the safe one; the `|` form is for
+scripting.
 
 ```
 > check listen | silent
@@ -74,63 +58,45 @@ exists to make the program easy to script and pipe into.
   No previously entered text is an anagram of "hello".
 ```
 
-That is the example from the task statement: with `f1(A,B)`, `f1(A,C)`, `f1(A,D)` where A, B and D
-are anagrams, `f2(A)` gives `[B, D]`, `f2(B)` gives `[A, D]`, and `f2(C)` gives `[]`. It is pinned
-down as a test in `AnagramServiceTest.SpecificationExample`.
+That is the example from the task (`f1(A,B)`, `f1(A,C)`, `f1(A,D)` → `f2(A)=[B,D]`, `f2(B)=[A,D]`,
+`f2(C)=[]`). It is also a test, `AnagramServiceTest.SpecificationExample`.
 
 ## What counts as an anagram
 
-Wikipedia defines an anagram as a word or phrase formed by rearranging the letters of **a different**
-word or phrase, **using all the original letters exactly once**. Two rules follow, and both live in
+Following the Wikipedia definition: a word or phrase formed by rearranging the letters of a
+*different* word or phrase, using all the letters exactly once. Two rules, both in
 `NormalizedText.isAnagramOf`:
 
-**1. The same letters, each used as often.** Only letters count, and case is irrelevant — Wikipedia's
-own examples require this, since `anagram` → `nag a ram` gains a space and `New York Times` →
-`monkeys write` changes case. So every text is reduced to its letters, lowercased, and compared as a
-multiset.
+1. **Same letters.** Only letters count and case is ignored (`anagram` / `nag a ram`,
+   `New York Times` / `monkeys write`).
+2. **Different word.** A text is not an anagram of itself. This is compared on the normalized
+   letters, so `Listen` vs `listen` is the same word, not an anagram pair. The task's example
+   relies on this: `f2(A)` is `[B, D]`, not `[A, B, D]`.
 
-**2. A *different* word or phrase.** This is the rule that is easy to miss, and the task's example
-confirms it: A is entered three times, yet `f2(A)` returns `[B, D]` rather than `[A, B, D]`. So
-`f1(X, X)` is false, and a text is never returned among its own anagrams.
+Some consequences:
 
-"Different" is judged on the *normalised* letters, not the raw text. Otherwise `Listen` and `listen`
-would count as an anagram pair, which is plainly wrong — they are one word typed two ways. The same
-reasoning makes `dog` and `d o g` the same word.
-
-### Decisions this leaves open, and how they went
-
-| Case | Behaviour | Why |
+| Input | Result | Why |
 | --- | --- | --- |
-| `abc1` vs `abc2` | Not anagrams | Digits are not letters, so both are the word `abc` — the same word twice |
-| `café` vs `face` | Not anagrams | Accented letters are distinct letters in the languages that use them |
-| `café` composed vs decomposed | The same word | Text is NFC-normalised first, so both Unicode spellings of `é` agree |
-| `""`, `"  "`, `"!!!"` | Rejected | A text with no letters is not a word or phrase; without this rule they would all land in one bucket and be reported as mutual non-anagrams |
-| `LISTEN` after `listen` | One entry, displayed as `listen` | The same word; the first spelling seen is kept |
+| `abc1` vs `abc2` | not anagrams | digits are ignored, so it is `abc` twice |
+| `café` vs `face` | not anagrams | accented letters are different letters |
+| `café` typed two ways (NFC / NFD) | same word | input is NFC-normalized first |
+| `""`, `"!!!"` | rejected | no letters, nothing to rearrange |
+| `LISTEN` after `listen` | one entry, shown as `listen` | first spelling wins |
 
-A **known limitation**: case folding uses `String.toLowerCase(Locale.ROOT)`, which does not apply
-full Unicode case folding, so German `ß` and `SS` are treated as different letters. Fixing it means
-full case folding (via ICU4J, or a hand-rolled mapping); it was left out rather than pulling in a
-dependency for one letter. Everything else Unicode-related is handled: the default locale is never
-used (under a Turkish locale `"I".toLowerCase()` is a dotless `ı`, which would make results depend on
-where the program runs), and text is walked by code point so that letters outside the Basic
-Multilingual Plane count as one letter rather than two surrogate halves.
+Known gap: `ß` vs `SS` are treated as different letters, because `toLowerCase` is case mapping,
+not full case folding. Fixing that properly needs ICU4J; not worth the dependency here.
 
 ## Design
 
 ```
-domain/   AnagramSignature, NormalizedText, TextNormalizer,
-          LetterOnlyTextNormalizer, AnagramChecker    pure rules, no I/O
-store/    AnagramHistory + InMemoryAnagramHistory     the texts seen so far
-service/  AnagramService                              the two features
-cli/      AnagramCli, Main                            parsing and formatting only
+domain/   AnagramSignature, NormalizedText, TextNormalizer, AnagramChecker   the rules
+store/    AnagramHistory, InMemoryAnagramHistory                            what was entered
+service/  AnagramService                                                    the two features
+cli/      AnagramCli, Main                                                  input/output only
 ```
 
-The dependencies point inwards: the domain knows nothing about storage, and neither knows anything
-about the console. That is what lets `AnagramCli` be tested end to end against a `StringReader`
-rather than a terminal, and what would let a REST layer replace the CLI without touching a rule.
-
-**Feature #2 does not scan the history.** Each text is filed under a signature — its letters, sorted —
-so the candidate anagrams of a query are exactly the contents of one bucket:
+Feature 2 does not scan the history. Every text is stored under its signature (letters, sorted),
+so the anagrams of a query are exactly one bucket:
 
 ```
 "listen" ─┐
@@ -139,31 +105,14 @@ so the candidate anagrams of a query are exactly the contents of one bucket:
 "hello"  ───► ehllo  ─► [hello]
 ```
 
-A lookup costs **O(m log m)** on the length of the query alone and does not slow down as the history
-grows; comparing the query against every stored text would cost O(n·m). Buckets are insertion-ordered,
-so results are deterministic rather than dependent on hash iteration order — which is why the two
-orderings in the task's example come out exactly as written.
+Lookup cost depends on the length of the query, not on how much has been entered. Buckets keep
+insertion order, so results are deterministic.
 
-Two other choices worth naming:
-
-- **Feature #1 records both texts whatever the answer.** The task's example depends on it: `C` is
-  available to feature #2 even though `f1(A, C)` was false. Recording happens only after both texts
-  validate, so a rejected call leaves nothing behind.
-- **Feature #2 records nothing.** The task scopes the history to "all past inputs from feature #1",
-  so asking a question does not change the answer to the next one.
-
-`AnagramHistory` is an interface because "no need to persist across executions" is a requirement of
-today, not a property of the problem. `InMemoryAnagramHistory` is thread-safe behind a read/write
-lock — a CLI never contends, but a store is exactly the component that later ends up behind a request
-handler.
+`AnagramHistory` is an interface so the in-memory store could be swapped for a persistent one.
+The in-memory one is behind a read/write lock; not needed for a CLI, but cheap.
 
 ## Tests
 
-47 tests covering the task's worked example verbatim, the self-anagram rule, case and punctuation
-insensitivity, Unicode composition, supplementary-plane letters, locale independence, input
-rejection, store ordering and deduplication, concurrent writers, and a full CLI session driven
-end to end.
-
-```bash
-./gradlew test
-```
+47, covering the task's example, the "different word" rule, case/punctuation, Unicode
+composition, locale independence, input rejection, store ordering and deduplication, concurrent
+writes, and a full CLI session.

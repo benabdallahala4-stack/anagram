@@ -16,8 +16,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-// --release rather than a Java toolchain: it compiles against the Java 17 API using whatever
-// JDK 17+ is already installed, instead of making Gradle download a second JDK.
+// --release instead of a toolchain: no second JDK download, still pinned to the 17 API.
 tasks.withType(JavaCompile).configureEach {
     options.release = 17
     options.encoding = 'UTF-8'
@@ -26,11 +25,11 @@ tasks.withType(JavaCompile).configureEach {
 
 application {
     mainClass = 'com.beyonnex.anagram.cli.Main'
-    // The program reads and writes text, so pin the encoding instead of inheriting the platform's.
+    // Pin the encoding instead of inheriting the platform default.
     applicationDefaultJvmArgs = ['-Dfile.encoding=UTF-8']
 }
 
-// 'gradle run' wires up a real terminal; without this, stdin is not forwarded to the program.
+// Without this, gradle run does not forward stdin.
 run {
     standardInput = System.in
 }

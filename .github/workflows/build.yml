@@ -30,7 +30,6 @@ jobs:
           name: test-report
           path: build/reports/tests/test
 
-  # Builds the image and drives a session through it, so the Dockerfile cannot rot unnoticed.
   docker:
     runs-on: ubuntu-latest
     steps:

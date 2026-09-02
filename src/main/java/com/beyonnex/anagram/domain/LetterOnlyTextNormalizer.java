@@ -5,32 +5,10 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * The normaliser that matches Wikipedia's definition: anagrams rearrange the <em>letters</em> of a
- * word or phrase, so everything that is not a letter is discarded and case is irrelevant.
+ * Keeps letters only and ignores case. That is what Wikipedia's own examples need:
+ * "anagram" / "nag a ram" and "New York Times" / "monkeys write".
  *
- * <p>Wikipedia's own examples require both rules: {@code "anagram"} &rarr; {@code "nag a ram"} only
- * works if spaces are ignored, and {@code "New York Times"} &rarr; {@code "monkeys write"} only
- * works if case is too.
- *
- * <p>The steps are ordered deliberately:
- *
- * <ol>
- *   <li><b>NFC first.</b> Unicode can spell "é" as one code point or as "e" plus a combining accent.
- *       Without composing first, the combining accent (which is a mark, not a letter) would be
- *       stripped and the two spellings would disagree.</li>
- *   <li><b>Case-fold with {@link Locale#ROOT}.</b> The default locale would be a latent bug: under a
- *       Turkish locale {@code "I".toLowerCase()} yields a dotless {@code "ı"}, so the same two texts
- *       would compare differently depending on where the program runs.</li>
- *   <li><b>NFC again.</b> Case mapping can itself produce decomposed output; {@code "İ"} lowercases
- *       to {@code "i"} plus a combining dot.</li>
- *   <li><b>Keep letters only,</b> walking code points so that supplementary-plane letters survive
- *       intact.</li>
- * </ol>
- *
- * <p>Diacritics are kept significant: {@code "café"} and {@code "face"} are not anagrams, because in
- * the languages that use them accented letters are distinct letters.
- *
- * <p>Stateless and therefore thread-safe.
+ * <p>Accented letters stay distinct ("café" is not an anagram of "face").
  */
 public final class LetterOnlyTextNormalizer implements TextNormalizer {
 
@@ -38,7 +16,10 @@ public final class LetterOnlyTextNormalizer implements TextNormalizer {
     public NormalizedText normalize(String raw) {
         Objects.requireNonNull(raw, "raw");
 
+        // NFC first, so "e" + combining accent becomes "é" before we drop non-letters.
         String composed = Normalizer.normalize(raw, Normalizer.Form.NFC);
+        // Locale.ROOT: under a Turkish default locale "I" lowercases to dotless "ı".
+        // Lowercasing can decompose again ("İ" -> "i" + dot), so NFC once more.
         String folded = Normalizer.normalize(composed.toLowerCase(Locale.ROOT), Normalizer.Form.NFC);
 
         StringBuilder letters = new StringBuilder(folded.length());

@@ -7,9 +7,7 @@ import com.beyonnex.anagram.store.InMemoryAnagramHistory;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * The two features, free of any I/O so that the user interface stays replaceable.
- */
+/** The two features. No I/O in here, so the CLI can be swapped for something else. */
 public final class AnagramService {
 
     private final AnagramChecker checker;
@@ -25,13 +23,10 @@ public final class AnagramService {
     }
 
     /**
-     * Feature #1 &mdash; are these two texts anagrams of each other?
+     * Feature 1. Both texts are recorded whether or not they match: the task's example expects
+     * C to be in the history after f1(A, C) returned false.
      *
-     * <p>Both texts are recorded whatever the answer, which is what makes the task's worked example
-     * come out right: {@code C} is offered to feature #2 even though {@code f1(A, C)} was false.
-     * Recording happens only after both texts validate, so a rejected call leaves no trace.
-     *
-     * @throws IllegalArgumentException if either text contains no letters
+     * @throws IllegalArgumentException if either text has no letters
      */
     public boolean areAnagrams(String left, String right) {
         NormalizedText first = checker.normalize(left);
@@ -44,22 +39,17 @@ public final class AnagramService {
     }
 
     /**
-     * Feature #2 &mdash; every previously entered text that is an anagram of {@code text}.
+     * Feature 2. Read-only: the history is made of feature 1 inputs, so querying adds nothing.
      *
-     * <p>A pure query: the task scopes the history to "all past inputs from feature #1", so asking a
-     * question does not itself add to it. The query is therefore never in its own results, and
-     * neither is any text that is merely a restyling of it, such as a different capitalisation.
-     *
-     * @return the matching texts as they were first entered, in the order they were first entered;
-     *         empty if there are none
-     * @throws IllegalArgumentException if the text contains no letters
+     * @return matching texts as first entered, in the order first entered
+     * @throws IllegalArgumentException if the text has no letters
      */
     public List<String> findAnagramsOf(String text) {
         NormalizedText query = checker.normalize(text);
         return history.findAnagramsOf(query).stream().map(NormalizedText::raw).toList();
     }
 
-    /** Every distinct text recorded so far, in arrival order. Supports the CLI's history command. */
+    /** Everything entered so far, for the CLI's history command. */
     public List<String> recordedTexts() {
         return history.all().stream().map(NormalizedText::raw).toList();
     }
