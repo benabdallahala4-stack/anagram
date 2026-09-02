@@ -11,6 +11,8 @@ Java 17, Gradle, no runtime dependencies. History is kept in memory for the dura
 
 ## Running it
 
+From source, with any JDK 17 or newer:
+
 ```bash
 ./gradlew run          # interactive
 ./gradlew test         # 47 tests
@@ -22,6 +24,25 @@ Or build a jar and run that:
 ./gradlew jar
 java -jar build/libs/anagram-1.0.0.jar
 ```
+
+A prebuilt jar is attached to the [latest release](https://github.com/benabdallahala4-stack/anagram/releases/latest),
+so it can be run without building anything:
+
+```bash
+java -jar anagram-1.0.0.jar
+```
+
+### With Docker
+
+For a machine with no JDK on it. The image is built from source in a throwaway stage, so only a JRE
+and the jar are shipped:
+
+```bash
+docker build -t anagram .
+docker run --rm -it anagram
+```
+
+`-i` matters: the program reads stdin, so without it there is nothing to read and it exits at once.
 
 ### Commands
 

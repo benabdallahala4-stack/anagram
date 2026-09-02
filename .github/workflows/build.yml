@@ -29,3 +29,20 @@ jobs:
         with:
           name: test-report
           path: build/reports/tests/test
+
+  # Builds the image and drives a session through it, so the Dockerfile cannot rot unnoticed.
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the image
+        run: docker build -t anagram:ci .
+
+      - name: Run a session through it
+        run: |
+          output=$(printf 'check listen | silent\nfind listen\nquit\n' \
+                   | docker run --rm -i anagram:ci)
+          echo "$output"
+          echo "$output" | grep -q '"listen" and "silent" ARE anagrams.'
+          echo "$output" | grep -q -- '- silent'

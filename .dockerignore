@@ -1,0 +1,10 @@
+# Keep the build context to sources and build files: everything else is either rebuilt inside the
+# image or irrelevant to it.
+.git
+.github
+.gradle
+build
+*.md
+.idea
+.vscode
+*.iml
