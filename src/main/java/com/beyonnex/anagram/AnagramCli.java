@@ -155,7 +155,11 @@ public final class AnagramCli {
     }
 
     private void printBanner() {
-        out.println("Anagram tool. Type 'help' for the commands, 'quit' to leave.");
+        out.println("""
+                Anagram tool.
+                  check <first> | <second>   are the two texts anagrams? (feature 1)
+                  find <text>                which earlier texts are anagrams of it? (feature 2)
+                Type 'help' for all commands, 'quit' to leave.""");
     }
 
     private void printHelp() {
