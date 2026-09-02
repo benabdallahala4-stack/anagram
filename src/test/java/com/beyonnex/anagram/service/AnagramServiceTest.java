@@ -22,7 +22,7 @@ class AnagramServiceTest {
 
     /**
      * The example from the task statement, transcribed as-is: A, B and D are anagrams, C is not,
-     * and feature #1 is invoked with f1(A,B), f1(A,C), f1(A,D).
+     * and feature 1 is invoked with f1(A,B), f1(A,C), f1(A,D).
      */
     @Nested
     @DisplayName("the worked example from the specification")

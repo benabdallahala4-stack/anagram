@@ -26,7 +26,7 @@ class AnagramCliTest {
     }
 
     @Test
-    @DisplayName("the one-line form of feature #1 reports both outcomes")
+    @DisplayName("the one-line form of feature 1 reports both outcomes")
     void checksTwoTextsOnOneLine() {
         String output = session("check listen | silent", "check listen | hello", "quit");
 
@@ -36,7 +36,7 @@ class AnagramCliTest {
     }
 
     @Test
-    @DisplayName("the prompted form of feature #1 accepts texts containing spaces")
+    @DisplayName("the prompted form of feature 1 accepts texts containing spaces")
     void checksTwoTextsAcrossPrompts() {
         String output = session("check", "New York Times", "monkeys write", "quit");
 
@@ -44,7 +44,7 @@ class AnagramCliTest {
     }
 
     @Test
-    @DisplayName("feature #2 lists earlier entries, and reports when there are none")
+    @DisplayName("feature 2 lists earlier entries, and reports when there are none")
     void findsAnagramsAmongEarlierEntries() {
         String output = session(
                 "check listen | silent",

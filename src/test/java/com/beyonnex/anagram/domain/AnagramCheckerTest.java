@@ -34,7 +34,7 @@ class AnagramCheckerTest {
         "William Shakespeare, I am a weakish speller",
         "Dormitory, Dirty room",
     })
-    void recognisesAnagrams(String left, String right) {
+    void recognizesAnagrams(String left, String right) {
         assertTrue(areAnagrams(left, right));
         assertTrue(areAnagrams(right, left), "the relation is symmetric");
     }
@@ -109,8 +109,7 @@ class AnagramCheckerTest {
     void isIndependentOfDefaultLocale() {
         Locale original = Locale.getDefault();
         try {
-            // Under a Turkish locale, "I".toLowerCase() is a dotless "ı"; a normaliser that used the
-            // default locale would silently answer differently here than everywhere else.
+            // Under a Turkish locale, "I".toLowerCase() is a dotless "ı".
             Locale.setDefault(Locale.forLanguageTag("tr-TR"));
             assertTrue(areAnagrams("LISTEN", "silent"));
             assertFalse(areAnagrams("LISTEN", "listen"));

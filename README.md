@@ -4,8 +4,8 @@
 
 Small interactive CLI with two features:
 
-1. **check** – are two texts anagrams of each other?
-2. **find** – which previously entered texts are anagrams of a given text?
+1. **check**: are two texts anagrams of each other?
+2. **find**: which previously entered texts are anagrams of a given text?
 
 Java 17, Gradle, no runtime dependencies. History is kept in memory for one run.
 
@@ -32,7 +32,7 @@ docker run --rm -it anagram
 
 ### Commands
 
-| Command | |
+| Command | What it does |
 | --- | --- |
 | `check` | feature 1, prompts for each text on its own line |
 | `check <first> \| <second>` | same thing on one line |

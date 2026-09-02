@@ -14,8 +14,10 @@ public final class Main {
 
     public static void main(String[] args) {
         // Explicit UTF-8 so accented input survives whatever the platform default is.
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-        PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8));
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(System.in, StandardCharsets.UTF_8));
+        PrintWriter out = new PrintWriter(
+                new OutputStreamWriter(System.out, StandardCharsets.UTF_8));
 
         new AnagramCli(new AnagramService(), in, out).run();
         out.flush();

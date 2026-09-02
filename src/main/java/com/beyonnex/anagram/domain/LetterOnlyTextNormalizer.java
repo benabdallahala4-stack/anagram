@@ -20,7 +20,8 @@ public final class LetterOnlyTextNormalizer implements TextNormalizer {
         String composed = Normalizer.normalize(raw, Normalizer.Form.NFC);
         // Locale.ROOT: under a Turkish default locale "I" lowercases to dotless "ı".
         // Lowercasing can decompose again ("İ" -> "i" + dot), so NFC once more.
-        String folded = Normalizer.normalize(composed.toLowerCase(Locale.ROOT), Normalizer.Form.NFC);
+        String folded =
+                Normalizer.normalize(composed.toLowerCase(Locale.ROOT), Normalizer.Form.NFC);
 
         StringBuilder letters = new StringBuilder(folded.length());
         folded.codePoints().filter(Character::isLetter).forEach(letters::appendCodePoint);

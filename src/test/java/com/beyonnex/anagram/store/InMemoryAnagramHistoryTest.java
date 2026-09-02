@@ -52,7 +52,7 @@ class InMemoryAnagramHistoryTest {
 
     @Test
     @DisplayName("re-recording a text, in any casing, does not duplicate it")
-    void deduplicatesOnTheNormalisedForm() {
+    void deduplicatesOnTheNormalizedForm() {
         add("listen");
         add("LISTEN");
         add("  listen!  ");
@@ -134,7 +134,7 @@ class InMemoryAnagramHistoryTest {
     }
 
     /**
-     * A distinct alphabetic suffix per index. Digits would not do: the normaliser strips them, so
+     * A distinct alphabetic suffix per index. Digits would not do: the normalizer strips them, so
      * "word1" and "word2" are the same word and the store would rightly collapse them into one.
      */
     private static String alphabeticSuffix(int index) {

@@ -48,7 +48,8 @@ public final class AnagramCli {
             }
 
             int split = indexOfFirstSpace(input);
-            String command = (split < 0 ? input : input.substring(0, split)).toLowerCase(Locale.ROOT);
+            String command = (split < 0 ? input : input.substring(0, split))
+                    .toLowerCase(Locale.ROOT);
             String argument = split < 0 ? "" : input.substring(split + 1).trim();
 
             switch (command) {
@@ -117,7 +118,8 @@ public final class AnagramCli {
             if (anagrams.isEmpty()) {
                 out.println("  No previously entered text is an anagram of " + quote(text) + ".");
             } else {
-                out.println("  " + anagrams.size() + " anagram(s) of " + quote(text) + " entered so far:");
+                out.println("  " + anagrams.size() + " anagram(s) of " + quote(text)
+                        + " entered so far:");
                 for (String anagram : anagrams) {
                     out.println("    - " + anagram);
                 }
@@ -145,9 +147,9 @@ public final class AnagramCli {
 
     private void printHelp() {
         out.println("""
-                  check                     compare two texts, prompting for each (feature #1)
+                  check                     compare two texts, prompting for each (feature 1)
                   check <first> | <second>  the same, on one line
-                  find <text>               list previously entered anagrams of a text (feature #2)
+                  find <text>               list previously entered anagrams of a text (feature 2)
                   history                   list every text entered so far
                   help                      show this
                   quit                      leave

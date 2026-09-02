@@ -37,7 +37,7 @@ class LetterOnlyTextNormalizerTest {
     }
 
     @Test
-    @DisplayName("a text with no letters normalises to nothing")
+    @DisplayName("a text with no letters normalizes to nothing")
     void reportsTextWithoutLetters() {
         assertFalse(normalizer.normalize("").hasLetters());
         assertFalse(normalizer.normalize(" 42 !!! ").hasLetters());
