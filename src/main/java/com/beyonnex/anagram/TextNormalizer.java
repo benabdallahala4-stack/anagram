@@ -1,22 +1,25 @@
-package com.beyonnex.anagram.domain;
+package com.beyonnex.anagram;
 
 import java.text.Normalizer;
 import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Keeps letters only and ignores case. That is what Wikipedia's own examples need:
- * "anagram" / "nag a ram" and "New York Times" / "monkeys write".
+ * Reduces a text to the letters that count: letters only, case ignored. That is what Wikipedia's
+ * own examples need ("anagram" / "nag a ram", "New York Times" / "monkeys write").
  *
  * <p>Accented letters stay distinct ("café" is not an anagram of "face").
  */
-public final class LetterOnlyTextNormalizer implements TextNormalizer {
+public final class TextNormalizer {
 
-    @Override
-    public NormalizedText normalize(String raw) {
+    private TextNormalizer() {
+    }
+
+    /** @throws IllegalArgumentException if the text has no letters, i.e. nothing to rearrange */
+    public static NormalizedText normalize(String raw) {
         Objects.requireNonNull(raw, "raw");
 
-        // NFC first, so "e" + combining accent becomes "é" before we drop non-letters.
+        // NFC first, so "e" + combining accent becomes "é" before non-letters are dropped.
         String composed = Normalizer.normalize(raw, Normalizer.Form.NFC);
         // Locale.ROOT: under a Turkish default locale "I" lowercases to dotless "ı".
         // Lowercasing can decompose again ("İ" -> "i" + dot), so NFC once more.
@@ -26,6 +29,9 @@ public final class LetterOnlyTextNormalizer implements TextNormalizer {
         StringBuilder letters = new StringBuilder(folded.length());
         folded.codePoints().filter(Character::isLetter).forEach(letters::appendCodePoint);
 
+        if (letters.length() == 0) {
+            throw new IllegalArgumentException("A text must contain at least one letter.");
+        }
         return new NormalizedText(raw, letters.toString());
     }
 }

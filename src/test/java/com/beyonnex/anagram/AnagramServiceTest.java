@@ -1,4 +1,4 @@
-package com.beyonnex.anagram.service;
+package com.beyonnex.anagram;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

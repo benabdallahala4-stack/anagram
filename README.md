@@ -88,11 +88,14 @@ not full case folding. Fixing that properly needs ICU4J; not worth the dependenc
 
 ## Design
 
+Five classes in one package:
+
 ```
-domain/   AnagramSignature, NormalizedText, TextNormalizer, AnagramChecker   the rules
-store/    AnagramHistory, InMemoryAnagramHistory                            what was entered
-service/  AnagramService                                                    the two features
-cli/      AnagramCli, Main                                                  input/output only
+NormalizedText   a text plus its letters; the anagram rule lives here
+TextNormalizer   raw text -> NormalizedText; rejects texts with no letters
+AnagramHistory   what was entered, indexed by signature
+AnagramService   the two features, no I/O
+AnagramCli       the command loop and main()
 ```
 
 Feature 2 does not scan the history. Every text is stored under its signature (letters, sorted),
@@ -108,11 +111,11 @@ so the anagrams of a query are exactly one bucket:
 Lookup cost depends on the length of the query, not on how much has been entered. Buckets keep
 insertion order, so results are deterministic.
 
-`AnagramHistory` is an interface so the in-memory store could be swapped for a persistent one.
-The in-memory one is behind a read/write lock; not needed for a CLI, but cheap.
+`AnagramCli` takes a reader and a writer rather than using `System.in`/`out` directly, which is
+what lets a test drive a whole session.
 
 ## Tests
 
-47, covering the task's example, the "different word" rule, case/punctuation, Unicode
-composition, locale independence, input rejection, store ordering and deduplication, concurrent
-writes, and a full CLI session.
+44, covering the task's example, the "different word" rule, case/punctuation, Unicode
+composition, locale independence, input rejection, history ordering and deduplication, and a
+full CLI session.

@@ -1,4 +1,4 @@
-package com.beyonnex.anagram.domain;
+package com.beyonnex.anagram;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-class AnagramCheckerTest {
+class TextNormalizerTest {
 
     /** "café" with e-acute as a single code point, U+00E9. */
     private static final String CAFE_COMPOSED = "caf\u00e9";
@@ -19,10 +19,32 @@ class AnagramCheckerTest {
     /** The same word with e-acute spelled as "e" plus a combining acute accent, U+0301. */
     private static final String CAFE_DECOMPOSED = "cafe\u0301";
 
-    private final AnagramChecker checker = new AnagramChecker();
+    private static boolean areAnagrams(String left, String right) {
+        return TextNormalizer.normalize(left).isAnagramOf(TextNormalizer.normalize(right));
+    }
 
-    private boolean areAnagrams(String left, String right) {
-        return checker.normalize(left).isAnagramOf(checker.normalize(right));
+    @Test
+    @DisplayName("keeps letters, folds case, drops everything else")
+    void reducesTextToItsLetters() {
+        assertEquals("newyorktimes", TextNormalizer.normalize("New York Times!").letters());
+        assertEquals("nagaram", TextNormalizer.normalize("Nag a ram").letters());
+        assertEquals("abc", TextNormalizer.normalize("a-b-c 123").letters());
+    }
+
+    @Test
+    @DisplayName("the text as typed is preserved for display")
+    void keepsTheRawText() {
+        String raw = "  New York Times!  ";
+        assertEquals(raw, TextNormalizer.normalize(raw).raw());
+    }
+
+    @Test
+    @DisplayName("the signature is the letters in sorted order")
+    void signatureSortsTheLetters() {
+        assertEquals("eilnst", TextNormalizer.normalize("Listen!").signature());
+        assertEquals(
+                TextNormalizer.normalize("silent").signature(),
+                TextNormalizer.normalize("listen").signature());
     }
 
     @ParameterizedTest(name = "\"{0}\" and \"{1}\" are anagrams")
@@ -84,9 +106,8 @@ class AnagramCheckerTest {
     @DisplayName("the same word spelled composed or decomposed reduces to the same letters")
     void unicodeCompositionDoesNotChangeTheAnswer() {
         assertEquals(
-                checker.normalize(CAFE_COMPOSED).signature(),
-                checker.normalize(CAFE_DECOMPOSED).signature(),
-                "both spellings must reduce to the same letters");
+                TextNormalizer.normalize(CAFE_COMPOSED).letters(),
+                TextNormalizer.normalize(CAFE_DECOMPOSED).letters());
         assertFalse(areAnagrams(CAFE_COMPOSED, CAFE_DECOMPOSED), "they are the same word");
         assertTrue(areAnagrams(CAFE_DECOMPOSED, "fac\u00e9"));
     }
@@ -100,7 +121,7 @@ class AnagramCheckerTest {
 
         assertTrue(areAnagrams(first, second));
 
-        String letters = checker.normalize(first).letters();
+        String letters = TextNormalizer.normalize(first).letters();
         assertEquals(2, letters.codePointCount(0, letters.length()), "two letters, not four chars");
     }
 
@@ -121,9 +142,9 @@ class AnagramCheckerTest {
     @Test
     @DisplayName("texts with no letters are rejected")
     void rejectsTextsWithoutLetters() {
-        assertThrows(IllegalArgumentException.class, () -> checker.normalize(""));
-        assertThrows(IllegalArgumentException.class, () -> checker.normalize("   "));
-        assertThrows(IllegalArgumentException.class, () -> checker.normalize("123 !!!"));
-        assertThrows(NullPointerException.class, () -> checker.normalize(null));
+        assertThrows(IllegalArgumentException.class, () -> TextNormalizer.normalize(""));
+        assertThrows(IllegalArgumentException.class, () -> TextNormalizer.normalize("   "));
+        assertThrows(IllegalArgumentException.class, () -> TextNormalizer.normalize("123 !!!"));
+        assertThrows(NullPointerException.class, () -> TextNormalizer.normalize(null));
     }
 }

@@ -1,4 +1,4 @@
-package com.beyonnex.anagram.domain;
+package com.beyonnex.anagram;
 
 import java.util.Objects;
 
@@ -13,12 +13,11 @@ public record NormalizedText(String raw, String letters) {
         Objects.requireNonNull(letters, "letters");
     }
 
-    public boolean hasLetters() {
-        return !letters.isEmpty();
-    }
-
-    public AnagramSignature signature() {
-        return AnagramSignature.of(letters);
+    /** The letters, sorted. Two texts are made of the same letters exactly when these are equal. */
+    public String signature() {
+        // Sort code points, not chars: letters outside the BMP are stored as surrogate pairs.
+        int[] codePoints = letters.codePoints().sorted().toArray();
+        return new String(codePoints, 0, codePoints.length);
     }
 
     /** Same word ignoring case and punctuation: "Listen" and "listen", "dog" and "d o g". */

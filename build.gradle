@@ -24,7 +24,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 application {
-    mainClass = 'com.beyonnex.anagram.cli.Main'
+    mainClass = 'com.beyonnex.anagram.AnagramCli'
     // Pin the encoding instead of inheriting the platform default.
     applicationDefaultJvmArgs = ['-Dfile.encoding=UTF-8']
 }

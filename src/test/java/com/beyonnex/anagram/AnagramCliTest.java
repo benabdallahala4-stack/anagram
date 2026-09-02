@@ -1,9 +1,8 @@
-package com.beyonnex.anagram.cli;
+package com.beyonnex.anagram;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.beyonnex.anagram.service.AnagramService;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.StringReader;

@@ -1,26 +1,11 @@
-package com.beyonnex.anagram.service;
+package com.beyonnex.anagram;
 
-import com.beyonnex.anagram.domain.AnagramChecker;
-import com.beyonnex.anagram.domain.NormalizedText;
-import com.beyonnex.anagram.store.AnagramHistory;
-import com.beyonnex.anagram.store.InMemoryAnagramHistory;
 import java.util.List;
-import java.util.Objects;
 
-/** The two features. No I/O in here, so the CLI can be swapped for something else. */
+/** The two features. No I/O in here, so the CLI could be swapped for something else. */
 public final class AnagramService {
 
-    private final AnagramChecker checker;
-    private final AnagramHistory history;
-
-    public AnagramService() {
-        this(new AnagramChecker(), new InMemoryAnagramHistory());
-    }
-
-    public AnagramService(AnagramChecker checker, AnagramHistory history) {
-        this.checker = Objects.requireNonNull(checker, "checker");
-        this.history = Objects.requireNonNull(history, "history");
-    }
+    private final AnagramHistory history = new AnagramHistory();
 
     /**
      * Feature 1. Both texts are recorded whether or not they match: the task's example expects
@@ -29,8 +14,8 @@ public final class AnagramService {
      * @throws IllegalArgumentException if either text has no letters
      */
     public boolean areAnagrams(String left, String right) {
-        NormalizedText first = checker.normalize(left);
-        NormalizedText second = checker.normalize(right);
+        NormalizedText first = TextNormalizer.normalize(left);
+        NormalizedText second = TextNormalizer.normalize(right);
 
         history.add(first);
         history.add(second);
@@ -45,7 +30,7 @@ public final class AnagramService {
      * @throws IllegalArgumentException if the text has no letters
      */
     public List<String> findAnagramsOf(String text) {
-        NormalizedText query = checker.normalize(text);
+        NormalizedText query = TextNormalizer.normalize(text);
         return history.findAnagramsOf(query).stream().map(NormalizedText::raw).toList();
     }
 
