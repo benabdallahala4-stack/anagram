@@ -60,7 +60,7 @@ class InMemoryAnagramHistoryTest {
 
         assertEquals(1, findAnagramsOf("silent").size());
         assertEquals(List.of("listen"), findAnagramsOf("silent"), "the first spelling wins");
-        assertEquals(2, history.size());
+        assertEquals(2, history.all().size());
     }
 
     @Test
@@ -126,7 +126,7 @@ class InMemoryAnagramHistoryTest {
             pool.shutdownNow();
         }
 
-        assertEquals(2 * wordsPerThread, history.size(), "each distinct word stored exactly once");
+        assertEquals(2 * wordsPerThread, history.all().size(), "each distinct word stored exactly once");
         assertEquals(
                 2 * wordsPerThread,
                 history.all().stream().map(NormalizedText::letters).collect(Collectors.toSet()).size(),

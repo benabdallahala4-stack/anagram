@@ -37,8 +37,16 @@ public final class AnagramCli {
     /** Runs until the user quits or input ends. */
     public void run() {
         printBanner();
-        String line;
-        while ((line = prompt("> ")) != null) {
+
+        boolean running = true;
+        while (running) {
+            String line = prompt("> ");
+            if (line == null) {
+                // End of input: Ctrl-D, or a pipe running dry.
+                out.println();
+                break;
+            }
+
             String input = line.trim();
             if (input.isEmpty()) {
                 continue;
@@ -55,17 +63,15 @@ public final class AnagramCli {
                 case "help", "?" -> printHelp();
                 case "quit", "exit" -> {
                     out.println("Bye.");
-                    out.flush();
-                    return;
+                    running = false;
                 }
-                default -> {
-                    out.println("Unknown command: '" + command + "'. Type 'help' to see the commands.");
-                    out.flush();
-                }
+                default -> out.println(
+                        "Unknown command: '" + command + "'. Type 'help' to see the commands.");
             }
+            // One flush per command handled, rather than one at the end of every branch. The only
+            // other place output has to be pushed is prompt(), which does not end with a newline.
+            out.flush();
         }
-        // Reached on end of input (Ctrl-D, or a pipe running dry).
-        out.println();
         out.flush();
     }
 
@@ -88,7 +94,6 @@ public final class AnagramCli {
             if (separator < 0) {
                 out.println("  Two texts are needed. Use 'check <first> | <second>', "
                         + "or just 'check' to be prompted for each.");
-                out.flush();
                 return;
             }
             left = argument.substring(0, separator).trim();
@@ -102,7 +107,6 @@ public final class AnagramCli {
         } catch (IllegalArgumentException e) {
             out.println("  " + e.getMessage());
         }
-        out.flush();
     }
 
     /** Feature #2. Accepts {@code find A}, or prompts for the text when given no argument. */
@@ -128,7 +132,6 @@ public final class AnagramCli {
         } catch (IllegalArgumentException e) {
             out.println("  " + e.getMessage());
         }
-        out.flush();
     }
 
     private void printHistory() {
@@ -141,12 +144,10 @@ public final class AnagramCli {
                 out.println("    - " + text);
             }
         }
-        out.flush();
     }
 
     private void printBanner() {
         out.println("Anagram tool. Type 'help' for the commands, 'quit' to leave.");
-        out.flush();
     }
 
     private void printHelp() {
@@ -160,7 +161,6 @@ public final class AnagramCli {
 
                 Texts entered via 'check' are remembered for 'find', whether or not they matched.
                 Asking 'find' does not itself record anything.""");
-        out.flush();
     }
 
     /** Writes a prompt and reads one line. @return the line, or null when input has ended */

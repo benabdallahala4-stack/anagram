@@ -66,7 +66,7 @@ public final class InMemoryAnagramHistory implements AnagramHistory {
                 // Sharing a bucket already proves "same letters", so this only has to enforce
                 // "a different word or phrase" -- which is what keeps the query out of its own
                 // results, whether or not it was ever entered itself.
-                if (query.isAnagramOf(candidate)) {
+                if (!query.isSameWordAs(candidate)) {
                     anagrams.add(candidate);
                 }
             }
@@ -81,16 +81,6 @@ public final class InMemoryAnagramHistory implements AnagramHistory {
         lock.readLock().lock();
         try {
             return List.copyOf(byLetters.values());
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
-    @Override
-    public int size() {
-        lock.readLock().lock();
-        try {
-            return byLetters.size();
         } finally {
             lock.readLock().unlock();
         }

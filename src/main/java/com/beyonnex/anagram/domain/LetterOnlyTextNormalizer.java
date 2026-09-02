@@ -44,7 +44,6 @@ public final class LetterOnlyTextNormalizer implements TextNormalizer {
         StringBuilder letters = new StringBuilder(folded.length());
         folded.codePoints().filter(Character::isLetter).forEach(letters::appendCodePoint);
 
-        String normalized = letters.toString();
-        return new NormalizedText(raw, normalized, AnagramSignature.of(normalized));
+        return new NormalizedText(raw, letters.toString());
     }
 }

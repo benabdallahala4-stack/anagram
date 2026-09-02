@@ -3,11 +3,12 @@ package com.beyonnex.anagram.domain;
 import java.util.Objects;
 
 /**
- * Feature #1 in its purest form: are two texts anagrams of each other?
+ * Turns raw input into the {@link NormalizedText} the anagram rules are expressed over, rejecting
+ * anything that is not a word or phrase.
  *
- * <p>Holds no state and performs no I/O, so it is safe to share and trivial to test. It is also the
- * single place where input is validated, which keeps the rejection rule consistent between the two
- * features.
+ * <p>Holds no state and performs no I/O, so it is safe to share and trivial to test. It is the single
+ * place where input is validated, which is what keeps the rejection rule consistent between the two
+ * features: both go through here. The rules themselves live on {@link NormalizedText}.
  */
 public final class AnagramChecker {
 
@@ -36,14 +37,5 @@ public final class AnagramChecker {
             throw new IllegalArgumentException("A text must contain at least one letter.");
         }
         return normalized;
-    }
-
-    /**
-     * @return true if the two texts are built from the same letters but are different words or
-     *         phrases
-     * @throws IllegalArgumentException if either text contains no letters
-     */
-    public boolean areAnagrams(String left, String right) {
-        return normalize(left).isAnagramOf(normalize(right));
     }
 }

@@ -26,7 +26,4 @@ public interface AnagramHistory {
 
     /** @return every recorded text, in the order first recorded */
     List<NormalizedText> all();
-
-    /** @return how many distinct words or phrases have been recorded */
-    int size();
 }

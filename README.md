@@ -1,5 +1,7 @@
 # Anagram tool
 
+[![build](https://github.com/benabdallahala4-stack/anagram/actions/workflows/build.yml/badge.svg)](https://github.com/benabdallahala4-stack/anagram/actions/workflows/build.yml)
+
 An interactive command-line program with two features:
 
 1. **Check** whether two texts are anagrams of each other.

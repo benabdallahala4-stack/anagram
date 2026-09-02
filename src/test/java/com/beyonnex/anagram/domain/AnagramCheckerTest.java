@@ -21,6 +21,15 @@ class AnagramCheckerTest {
 
     private final AnagramChecker checker = new AnagramChecker();
 
+    /**
+     * Exactly what {@code AnagramService} does for feature #1 minus the recording: normalise both
+     * texts, then apply the rule. Asserting through the same path production takes means these cases
+     * cannot pass against a shortcut that only the tests use.
+     */
+    private boolean areAnagrams(String left, String right) {
+        return checker.normalize(left).isAnagramOf(checker.normalize(right));
+    }
+
     @ParameterizedTest(name = "\"{0}\" and \"{1}\" are anagrams")
     @CsvSource({
         "listen, silent",
@@ -31,8 +40,8 @@ class AnagramCheckerTest {
         "Dormitory, Dirty room",
     })
     void recognisesAnagrams(String left, String right) {
-        assertTrue(checker.areAnagrams(left, right));
-        assertTrue(checker.areAnagrams(right, left), "the relation is symmetric");
+        assertTrue(areAnagrams(left, right));
+        assertTrue(areAnagrams(right, left), "the relation is symmetric");
     }
 
     @ParameterizedTest(name = "\"{0}\" and \"{1}\" are not anagrams")
@@ -43,37 +52,37 @@ class AnagramCheckerTest {
         "silent, silen",     // nor is a subset
     })
     void rejectsNonAnagrams(String left, String right) {
-        assertFalse(checker.areAnagrams(left, right));
-        assertFalse(checker.areAnagrams(right, left), "the relation is symmetric");
+        assertFalse(areAnagrams(left, right));
+        assertFalse(areAnagrams(right, left), "the relation is symmetric");
     }
 
     @Test
     @DisplayName("a text is never an anagram of itself: Wikipedia requires a DIFFERENT word")
     void aTextIsNotAnAnagramOfItself() {
-        assertFalse(checker.areAnagrams("listen", "listen"));
+        assertFalse(areAnagrams("listen", "listen"));
     }
 
     @Test
     @DisplayName("restyling a text does not make a different word")
     void differencesInCaseOrPunctuationDoNotMakeANewWord() {
-        assertFalse(checker.areAnagrams("Listen", "listen"), "case alone");
-        assertFalse(checker.areAnagrams("dog", "d o g"), "spacing alone");
-        assertFalse(checker.areAnagrams("dog!", "...dog"), "punctuation alone");
-        assertFalse(checker.areAnagrams("New York Times", "newyorktimes"), "both at once");
+        assertFalse(areAnagrams("Listen", "listen"), "case alone");
+        assertFalse(areAnagrams("dog", "d o g"), "spacing alone");
+        assertFalse(areAnagrams("dog!", "...dog"), "punctuation alone");
+        assertFalse(areAnagrams("New York Times", "newyorktimes"), "both at once");
     }
 
     @Test
     @DisplayName("digits are not letters, so they are ignored")
     void digitsAreIgnored() {
-        assertFalse(checker.areAnagrams("abc1", "abc2"), "both reduce to the same word, abc");
-        assertTrue(checker.areAnagrams("abc1", "cba2"));
+        assertFalse(areAnagrams("abc1", "abc2"), "both reduce to the same word, abc");
+        assertTrue(areAnagrams("abc1", "cba2"));
     }
 
     @Test
     @DisplayName("diacritics are significant letters")
     void diacriticsAreSignificant() {
-        assertFalse(checker.areAnagrams(CAFE_COMPOSED, "face"), "e-acute is not e");
-        assertTrue(checker.areAnagrams(CAFE_COMPOSED, "fac\u00e9"));
+        assertFalse(areAnagrams(CAFE_COMPOSED, "face"), "e-acute is not e");
+        assertTrue(areAnagrams(CAFE_COMPOSED, "fac\u00e9"));
     }
 
     @Test
@@ -83,8 +92,8 @@ class AnagramCheckerTest {
                 checker.normalize(CAFE_COMPOSED).signature(),
                 checker.normalize(CAFE_DECOMPOSED).signature(),
                 "both spellings must reduce to the same letters");
-        assertFalse(checker.areAnagrams(CAFE_COMPOSED, CAFE_DECOMPOSED), "they are the same word");
-        assertTrue(checker.areAnagrams(CAFE_DECOMPOSED, "fac\u00e9"));
+        assertFalse(areAnagrams(CAFE_COMPOSED, CAFE_DECOMPOSED), "they are the same word");
+        assertTrue(areAnagrams(CAFE_DECOMPOSED, "fac\u00e9"));
     }
 
     @Test
@@ -94,7 +103,7 @@ class AnagramCheckerTest {
         String first = new String(new int[] {0x10400, 0x10401}, 0, 2);
         String second = new String(new int[] {0x10401, 0x10400}, 0, 2);
 
-        assertTrue(checker.areAnagrams(first, second));
+        assertTrue(areAnagrams(first, second));
 
         String letters = checker.normalize(first).letters();
         assertEquals(2, letters.codePointCount(0, letters.length()), "two letters, not four chars");
@@ -108,8 +117,8 @@ class AnagramCheckerTest {
             // Under a Turkish locale, "I".toLowerCase() is a dotless "ı"; a normaliser that used the
             // default locale would silently answer differently here than everywhere else.
             Locale.setDefault(Locale.forLanguageTag("tr-TR"));
-            assertTrue(checker.areAnagrams("LISTEN", "silent"));
-            assertFalse(checker.areAnagrams("LISTEN", "listen"));
+            assertTrue(areAnagrams("LISTEN", "silent"));
+            assertFalse(areAnagrams("LISTEN", "listen"));
         } finally {
             Locale.setDefault(original);
         }
