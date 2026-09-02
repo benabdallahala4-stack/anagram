@@ -11,24 +11,45 @@ Java 17, Gradle, no runtime dependencies. History is kept in memory for one run.
 
 ## Running it
 
+You need a JDK 17 or newer on the `PATH` (`java -version` to check). The Gradle wrapper fetches
+Gradle itself, so there is nothing else to install.
+
+**Linux / macOS**
+
 ```bash
-./gradlew run          # interactive
+./gradlew run          # builds, then starts the interactive prompt
 ./gradlew test
 ```
 
-Or with a jar (also attached to the [latest release](https://github.com/benabdallahala4-stack/anagram/releases/latest)):
+**Windows** (PowerShell or cmd)
+
+```
+gradlew.bat run
+gradlew.bat test
+```
+
+Gradle draws its progress bar over the prompt while the program waits for input; it is still
+working. Add `--console=plain` to hide the bar, or run the jar instead.
+
+**As a jar** (any OS). Build it once, or download it from the
+[latest release](https://github.com/benabdallahala4-stack/anagram/releases/latest) and skip the build:
 
 ```bash
-./gradlew jar
+./gradlew jar          # gradlew.bat jar on Windows
 java -jar build/libs/anagram-1.0.0.jar
 ```
 
-Or with Docker, if there is no JDK around:
+**With Docker**, if there is no JDK around:
 
 ```bash
 docker build -t anagram .
 docker run --rm -it anagram
 ```
+
+`-i` matters: the program reads stdin, so without it there is nothing to read and it exits at once.
+
+On an older Windows console, run `chcp 65001` first if you want to type accented characters; the
+program itself always reads and writes UTF-8.
 
 ### Commands
 
