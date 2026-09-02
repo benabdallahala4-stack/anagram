@@ -28,9 +28,6 @@ gradlew.bat run
 gradlew.bat test
 ```
 
-Gradle draws its progress bar over the prompt while the program waits for input; it is still
-working. Add `--console=plain` to hide the bar, or run the jar instead.
-
 **As a jar** (any OS). Build it once, or download it from the
 [latest release](https://github.com/benabdallahala4-stack/anagram/releases/latest) and skip the build:
 
